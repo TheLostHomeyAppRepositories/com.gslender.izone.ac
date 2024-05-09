@@ -1,0 +1,17 @@
+{
+  "name": "com.gslender.izone",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {},
+  "devDependencies": {
+    "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.5",
+    "homey": "^3.2.4"
+  },
+  "dependencies": {
+    "color-convert": "^2.0.1",
+    "color-temp": "^0.0.2",
+    "undici": "^6.15.0"
+  },
+  "author": "Grant Slender",
+  "license": "GPL-3.0"
+}

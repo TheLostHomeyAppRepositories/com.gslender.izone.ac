@@ -1,0 +1,33 @@
+{
+  "id": "com.gslender.izone.ac",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "iZone AC"
+  },
+  "description": {
+    "en": "iZone Air Conditioning - The smart home has arrived. Control everything from your smart device."
+  },
+  "category": [
+    "climate"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png"
+  },
+  "author": {
+    "name": "Grant Slender",
+    "email": "gslender@gmail.com"
+  },
+  "api": {
+      "sendMessageAndReturnAddress": {
+          "method": "get",
+          "path": "/sendMessageAndReturnAddress/"
+      }
+  }
+}

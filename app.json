@@ -1,0 +1,179 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "com.gslender.izone.ac",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "iZone AC"
+  },
+  "description": {
+    "en": "iZone Air Conditioning - The smart home has arrived. Control everything from your smart device."
+  },
+  "category": [
+    "climate"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png"
+  },
+  "author": {
+    "name": "Grant Slender",
+    "email": "gslender@gmail.com"
+  },
+  "api": {
+    "sendMessageAndReturnAddress": {
+      "method": "get",
+      "path": "/sendMessageAndReturnAddress/"
+    }
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "AC Controller"
+      },
+      "class": "thermostat",
+      "capabilities": [
+        "target_temperature",
+        "measure_temperature",
+        "thermostat_mode",
+        "fan_mode",
+        "onoff"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/accontroller/assets/images/small.png",
+        "large": "/drivers/accontroller/assets/images/large.png",
+        "xlarge": "/drivers/accontroller/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "list_my_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices"
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "accontroller"
+    },
+    {
+      "name": {
+        "en": "Zones"
+      },
+      "class": "thermostat",
+      "capabilities": [
+        "target_temperature",
+        "measure_temperature",
+        "zone_mode",
+        "onoff"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/zone/assets/images/small.png",
+        "large": "/drivers/zone/assets/images/large.png",
+        "xlarge": "/drivers/zone/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "list_my_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices"
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "zone"
+    }
+  ],
+  "capabilities": {
+    "fan_mode": {
+      "type": "enum",
+      "values": [
+        {
+          "id": "low",
+          "title": {
+            "en": "Low"
+          }
+        },
+        {
+          "id": "medium",
+          "title": {
+            "en": "Medium"
+          }
+        },
+        {
+          "id": "high",
+          "title": {
+            "en": "High"
+          }
+        },
+        {
+          "id": "auto",
+          "title": {
+            "en": "Automatic"
+          }
+        }
+      ],
+      "title": {
+        "en": "Fan mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "uiQuickAction": true
+    },
+    "zone_mode": {
+      "type": "enum",
+      "values": [
+        {
+          "id": "open",
+          "title": {
+            "en": "Open"
+          }
+        },
+        {
+          "id": "close",
+          "title": {
+            "en": "Close"
+          }
+        },
+        {
+          "id": "auto",
+          "title": {
+            "en": "Climate / Auto"
+          }
+        }
+      ],
+      "title": {
+        "en": "Zone mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "uiQuickAction": true
+    }
+  }
+}

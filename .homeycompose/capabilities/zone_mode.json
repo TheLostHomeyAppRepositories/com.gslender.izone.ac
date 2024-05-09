@@ -1,0 +1,30 @@
+{
+    "type": "enum",
+    "values": [
+        {
+            "id": "open",
+            "title": {
+                "en": "Open"
+            }
+        },
+        {
+            "id": "close",
+            "title": {
+                "en": "Close"
+            }
+        },
+        {
+            "id": "auto",
+            "title": {
+                "en": "Climate / Auto"
+            }
+        }
+    ],
+    "title": {
+        "en": "Zone mode"
+    },
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "uiQuickAction": true
+}
