@@ -40,10 +40,17 @@ class iZoneApp extends Homey.App {
         });
     }
 
+
     this.state = {};
-    this.refresh();
-    // auto-refresh every 60 seconds
-    this.pollingId = setInterval(() => { this.refresh(); }, 60000);
+
+    // getFirmwareList
+    let resultFmw = await this.getFirmwareList();
+    if (resultFmw.status === "ok") {
+      this.state.firmware = resultFmw.Fmw;
+    }
+
+    // auto-refresh every 200 ms 
+    this.pollingId = setInterval(() => { this.refresh(); }, 200);
   }
 
   async onUninit() {
@@ -53,46 +60,50 @@ class iZoneApp extends Homey.App {
 
   async refresh() {
 
-    // connect and getAcSystemInfo 
-    let result = await this.getAcSystemInfo();
+    if (this.refreshZoneList === undefined) {
+      // starting or repeating, so do getAcSystemInfo 
+      this.refreshZoneList = [];
+      let result = await this.getAcSystemInfo();
 
-    if (result.status === "ok") {
-      this.state.ac = {};
-      this.state.ac.sysinfo = result.SystemV2
+      if (result.status === "ok") {
+        this.state.ac = {};
+        this.state.ac.sysinfo = result.SystemV2
+        updateCapabilitiesDeviceId('ac.sysInfo');
 
-      // getZonesInfo
-      this.state.ac.zones = {};
-
-      let promises = [];
-      for (let i = 0; i < result.SystemV2.NoOfZones; i++) {
-        promises.push(this.getZonesInfo(i));
-      }
-      // Wait for all promises to resolve
-      const results = await Promise.all(promises);
-      // Process each result
-      results.forEach((resultZone, i) => {
-        if (resultZone.status === "ok") {
-          let zonename = "zone" + (i + 1);
-          this.state.ac.zones[zonename] = resultZone.ZonesV2;
+        for (let i = 0; i < result.SystemV2.NoOfZones; i++) {
+          this.refreshZoneList.push(i);
         }
-      });
+
+        // getZonesInfo
+        this.state.ac.zones = {};
+      }
+      return;
     }
 
-    // getFirmwareList
-    let resultFmw = await this.getFirmwareList();
-    if (resultFmw.status === "ok") {
-      this.state.firmware = resultFmw.Fmw;
+    // now pop a zone num and do getZonesInfo...
+    const zoneNum = this.refreshZoneList.pop();
+    if (zoneNum != undefined) {
+      const resultZone = this.getZonesInfo(zoneNum);
+      if (resultZone.status === "ok") {
+        let zoneIdx = "zone" + (i + 1);
+        this.state.ac.zones[zoneIdx] = resultZone.ZonesV2;
+        updateCapabilitiesDeviceId(zoneIdx);
+      }     
+      return;
     }
+    // pop failed so reset refreshZoneList
+    this.refreshZoneList = undefined;
+  }
 
+  async updateCapabilitiesDeviceId(id) {
     // update the drivers and devices
     const drivers = this.homey.drivers.getDrivers();
     for (const driver in drivers) {
-      let devices = this.homey.drivers.getDriver(driver).getDevices();
-
-      for (let i = 0; i < devices.length; i++) {
-        let device = devices[i];
-        if (device.updateCapabilities) {
+      const devices = this.homey.drivers.getDriver(driver).getDevices();
+      for (const device in devices) {
+        if (device.getData().id === id && device.updateCapabilities) {
           device.updateCapabilities();
+          break;
         }
       }
     }
@@ -116,13 +127,6 @@ class iZoneApp extends Homey.App {
         body: JSON.stringify(mapBody)
       });
       const responseData = await response.json();
-
-      // if (this.enableRespDebug) {
-      //   for (const [name, value] of response.headers.entries()) {
-      //     this.log(`resp.headers: ${name} : ${value}`);
-      //   }
-      //   this.log(`resp.data: ${JSON.stringify(responseData)}`);
-      // }
 
       respData = responseData;
       if (respData.hasOwnProperty("SystemV2")) respData.status = "ok";
@@ -152,13 +156,6 @@ class iZoneApp extends Homey.App {
       });
       const responseData = await response.json();
 
-      // if (this.enableRespDebug) {
-      //   for (const [name, value] of response.headers.entries()) {
-      //     this.log(`resp.headers: ${name} : ${value}`);
-      //   }
-      //   this.log(`resp.data: ${JSON.stringify(responseData)}`);
-      // }
-
       respData = responseData;
       if (respData.hasOwnProperty("ZonesV2")) respData.status = "ok";
     } catch (e) {
@@ -186,13 +183,6 @@ class iZoneApp extends Homey.App {
         body: JSON.stringify(mapBody)
       });
       const responseData = await response.json();
-
-      // if (this.enableRespDebug) {
-      //   for (const [name, value] of response.headers.entries()) {
-      //     this.log(`resp.headers: ${name} : ${value}`);
-      //   }
-      //   this.log(`resp.data: ${JSON.stringify(responseData)}`);
-      // }
 
       respData = responseData;
       if (respData.hasOwnProperty("Fmw")) respData.status = "ok";

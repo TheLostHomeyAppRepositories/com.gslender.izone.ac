@@ -50,7 +50,7 @@ class iZoneACDriver extends Driver {
       const zone = this.homey.app.state.ac.zones[keyid];
       // don't include ZoneType_Constant
       if (zone.ZoneType != iZoneTypes.ZoneType_Constant) {
-        const device = { name: zone.Name,  data: { id: keyid }, store: { index: zone.Index } }; //, zonedata: zone } };
+        const device = { name: zone.Name,  data: { id: keyid } };//, store: { index: zone.Index } };
         this.log(`device ${JSON.stringify(device)}`);
         devices.push(device);
       }

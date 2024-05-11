@@ -8,8 +8,6 @@
     "homey": "^3.2.4"
   },
   "dependencies": {
-    "color-convert": "^2.0.1",
-    "color-temp": "^0.0.2",
     "undici": "^6.15.0"
   },
   "author": "Grant Slender",

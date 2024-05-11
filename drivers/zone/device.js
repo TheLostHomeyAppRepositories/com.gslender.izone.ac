@@ -43,30 +43,17 @@ class ZoneDevice extends Device {
   }
 
   getThisZone() {
-    if (this.homey.app.state?.ac?.zones) {
-      for (const keyid in this.homey.app.state.ac.zones) {
-        const zone = this.homey.app.state.ac.zones[keyid];
-        if (zone.Index === this.getStoreValue('index')) return zone;
-      }
-    }
+    if (this.homey.app.state?.ac?.zones) return this.homey.app.state.ac.zones[this.getData().id]
     return undefined;
   }
 
   async updateCapabilities() {
-    if (this.homey.app.state?.ac?.zones) {
-      for (const keyid in this.homey.app.state.ac.zones) {
-        const zone = this.homey.app.state.ac.zones[keyid];
-        if (zone.Index === this.getStoreValue('index')) {
-          this.setCapabilityValue('onoff', zone.Mode === iZoneTypes.ZoneMode_Auto || zone.Mode === iZoneTypes.ZoneMode_Open);
-          this.setCapabilityValue('measure_temperature', zone.Temp / 100);
-          this.setCapabilityValue('target_temperature', zone.Setpoint / 100);
-          this.setCapabilityValue('zone_mode', iZoneTypes.ZoneModeIdMap[zone.Mode]);
-          break;
-        }
-      }
-    }
+    const zone = this.getThisZone();
+    if (zone == undefined) return;
+    this.setCapabilityValue('onoff', zone.Mode === iZoneTypes.ZoneMode_Auto || zone.Mode === iZoneTypes.ZoneMode_Open);
+    this.setCapabilityValue('measure_temperature', zone.Temp / 100);
+    this.setCapabilityValue('target_temperature', zone.Setpoint / 100);
+    this.setCapabilityValue('zone_mode', iZoneTypes.ZoneModeIdMap[zone.Mode]);
   }
-
 }
-
 module.exports = ZoneDevice;
