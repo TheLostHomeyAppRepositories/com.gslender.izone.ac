@@ -1,5 +1,10 @@
 // iZoneTypes.js
 
+//BatteryLevel_e
+const BatteryLevel_Full = 0;
+const BatteryLevel_Half = 1;
+const BatteryLevel_Empty = 2;
+
 //ZoneType_e
 const ZoneType_OpenClose = 1;
 const ZoneType_Constant = 2;
@@ -89,6 +94,9 @@ function GetSysFanValue(str) {
 }
 
 module.exports = {
+  BatteryLevel_Full,
+  BatteryLevel_Half,
+  BatteryLevel_Empty,
   ZoneType_OpenClose,
   ZoneType_Constant,
   ZoneType_Auto,

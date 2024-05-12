@@ -2,12 +2,18 @@
   "name": {
     "en": "AC Controller"
   },
+  "energy": {
+    "approximation": {
+      "usageOn": 2000, 
+      "usageOff": 1 
+    }
+  },
   "class": "thermostat",
   "capabilities": [
     "target_temperature",
     "measure_temperature",
-    "thermostat_mode",
     "fan_mode",
+    "thermostat_mode",
     "onoff"
   ],
   "platforms": [

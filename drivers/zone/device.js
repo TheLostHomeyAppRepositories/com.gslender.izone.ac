@@ -20,16 +20,16 @@ class ZoneDevice extends Device {
       } else {
         this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.ZoneMode_Close });
       }
-      this.homey.app.state = {};
-      setTimeout(() => { this.homey.app.refresh(); }, 500);
+      this.homey.app.state.ac.zones[this.getData().id] = undefined;
+      this.homey.app.resetPolling();
     });
 
     this.registerCapabilityListener("target_temperature", async (value) => {
       const zone = this.getThisZone();
       if (zone == undefined) return;
       this.homey.app.sendSimpleiZoneCmd("ZoneSetpoint", { Index: zone.Index, Setpoint: value * 100 });
-      this.homey.app.state = {};
-      setTimeout(() => { this.homey.app.refresh(); }, 500);
+      this.homey.app.state.ac.zones[this.getData().id] = undefined;
+      this.homey.app.resetPolling();
     });
 
 
@@ -37,13 +37,13 @@ class ZoneDevice extends Device {
       const zone = this.getThisZone();
       if (zone == undefined) return;
       this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.GetZoneModeValue(value) });
-      this.homey.app.state = {};
-      setTimeout(() => { this.homey.app.refresh(); }, 500);
+      this.homey.app.state.ac.zones[this.getData().id] = undefined;
+      this.homey.app.resetPolling();
     });
   }
 
   getThisZone() {
-    if (this.homey.app.state?.ac?.zones) return this.homey.app.state.ac.zones[this.getData().id]
+    if (this.homey.app.state?.ac?.zones?.[this.getData().id]) return this.homey.app.state.ac.zones[this.getData().id]
     return undefined;
   }
 
@@ -54,6 +54,13 @@ class ZoneDevice extends Device {
     this.setCapabilityValue('measure_temperature', zone.Temp / 100);
     this.setCapabilityValue('target_temperature', zone.Setpoint / 100);
     this.setCapabilityValue('zone_mode', iZoneTypes.ZoneModeIdMap[zone.Mode]);
+    if (zone.BattVolt == iZoneTypes.BatteryLevel_Full) {
+      this.setCapabilityValue('measure_battery', 100);
+    } else if (zone.BattVolt == iZoneTypes.BatteryLevel_Half) {
+      this.setCapabilityValue('measure_battery', 50);
+    } else {
+      this.setCapabilityValue('measure_battery', 0);
+    }
   }
 }
 module.exports = ZoneDevice;

@@ -13,8 +13,7 @@ class ACControllerDevice extends Device {
 
     this.registerCapabilityListener("onoff", async (value) => {
       this.homey.app.sendSimpleiZoneCmd("SysOn", value ? 1 : 0);
-      this.homey.app.state = {};
-      setTimeout(() => { this.homey.app.refresh(); }, 500);
+      if (this.homey.app.state?.ac?.sysinfo) this.homey.app.state.ac.sysinfo = undefined;
     });
 
     this.registerCapabilityListener("target_temperature", async (value) => {
@@ -23,6 +22,7 @@ class ACControllerDevice extends Device {
         const isLower = value * 100 < this.homey.app.state.ac.sysinfo.Setpoint;
         for (const keyid in this.homey.app.state.ac.zones) {
           const zone = this.homey.app.state.ac.zones[keyid];
+          if (zone == undefined) continue;
           if (zone.Mode === iZoneTypes.ZoneMode_Open || zone.Mode === iZoneTypes.ZoneMode_Auto) {
             this.log(`>>>>>>zone ${JSON.stringify(zone)}`);
             if (isLower) {
@@ -34,24 +34,30 @@ class ACControllerDevice extends Device {
                 await this.homey.app.sendSimpleiZoneCmd("ZoneSetpoint", { Index: zone.Index, Setpoint: value * 100 });
               }
             }
+            this.homey.app.state.ac.zones[keyid] = undefined;
+            this.homey.app.resetPolling();
           }
         }
       }
-      this.homey.app.state = {};
-      setTimeout(() => { this.homey.app.refresh(); }, 500);
     });
 
     this.registerCapabilityListener("thermostat_mode", async (value) => {
       this.homey.app.sendSimpleiZoneCmd("SysMode", iZoneTypes.GetSysModeValue(value));
-      this.homey.app.state = {};
-      setTimeout(() => { this.homey.app.refresh(); }, 500);
+      if (this.homey.app.state?.ac?.sysinfo) this.homey.app.state.ac.sysinfo = undefined;
+      this.homey.app.resetPolling();
     });
 
     this.registerCapabilityListener("fan_mode", async (value) => {
       this.homey.app.sendSimpleiZoneCmd("SysFan", iZoneTypes.GetSysFanValue(value));
-      this.homey.app.state = {};
-      setTimeout(() => { this.homey.app.refresh(); }, 500);
+      if (this.homey.app.state?.ac?.sysinfo) this.homey.app.state.ac.sysinfo = undefined;
+      this.homey.app.resetPolling();
     });
+
+    if (this.homey.app.state?.firmware) {
+      await this.setSettings({
+        firmware: this.homey.app.state.firmware,
+      });
+    }
   }
 
   async updateCapabilities() {

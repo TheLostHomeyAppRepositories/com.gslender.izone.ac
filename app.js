@@ -49,12 +49,23 @@ class iZoneApp extends Homey.App {
       this.state.firmware = resultFmw.Fmw;
     }
 
+    this.startPolling();
+  }
+
+  async startPolling() {
     // auto-refresh every 200 ms 
     this.pollingId = setInterval(() => { this.refresh(); }, 200);
   }
 
   async onUninit() {
     clearInterval(this.pollingId);
+  }
+
+  async resetPolling() {
+    clearInterval(this.pollingId);
+    setTimeout(()=> {
+      this.startPolling();
+    },500);
   }
 
 
