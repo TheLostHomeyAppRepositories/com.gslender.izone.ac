@@ -42,51 +42,64 @@ class iZoneApp extends Homey.App {
 
 
     this.state = {};
+    this.state.ac = {};
+    this.state.ac.zones = {};
 
     // getFirmwareList
     let resultFmw = await this.getFirmwareList();
     if (resultFmw.status === "ok") {
       this.state.firmware = resultFmw.Fmw;
     }
-
     this.startPolling();
   }
 
-  async startPolling() {
-    // auto-refresh every 200 ms 
-    this.pollingId = setInterval(() => { this.refresh(); }, 200);
+  async onUninit() {
+    this.pausePolling();
   }
 
-  async onUninit() {
-    clearInterval(this.pollingId);
-  }
+  isPaused = false; // This flag checks if the polling is paused
 
   async resetPolling() {
-    clearInterval(this.pollingId);
-    setTimeout(()=> {
-      this.startPolling();
-    },500);
+    this.pausePolling();
+    setTimeout(() => {
+      this.resumePolling();
+    }, 500);
   }
 
+  async startPolling() {
+    setTimeout(() => {
+      if (!this.isPaused) {
+        this.polling().then(() => {
+          this.startPolling(); // Recursively start polling again
+        });
+      }
+    }, 200); // Wait for 200ms before the next poll
+  }
 
-  async refresh() {
+  async pausePolling() {
+    this.isPaused = true; // This pauses the polling
+  }
 
+  async resumePolling() {
+    if (this.isPaused) {
+      this.isPaused = false;
+      this.startPolling(); // Resume polling
+    }
+  }
+
+  async polling() {
     if (this.refreshZoneList === undefined) {
       // starting or repeating, so do getAcSystemInfo 
       this.refreshZoneList = [];
       let result = await this.getAcSystemInfo();
 
       if (result.status === "ok") {
-        this.state.ac = {};
         this.state.ac.sysinfo = result.SystemV2
         updateCapabilitiesDeviceId('ac.sysInfo');
 
         for (let i = 0; i < result.SystemV2.NoOfZones; i++) {
           this.refreshZoneList.push(i);
         }
-
-        // getZonesInfo
-        this.state.ac.zones = {};
       }
       return;
     }
@@ -99,7 +112,7 @@ class iZoneApp extends Homey.App {
         let zoneIdx = "zone" + (i + 1);
         this.state.ac.zones[zoneIdx] = resultZone.ZonesV2;
         updateCapabilitiesDeviceId(zoneIdx);
-      }     
+      }
       return;
     }
     // pop failed so reset refreshZoneList

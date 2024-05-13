@@ -14,6 +14,7 @@ class ACControllerDevice extends Device {
     this.registerCapabilityListener("onoff", async (value) => {
       this.homey.app.sendSimpleiZoneCmd("SysOn", value ? 1 : 0);
       if (this.homey.app.state?.ac?.sysinfo) this.homey.app.state.ac.sysinfo = undefined;
+      this.homey.app.resetPolling();
     });
 
     this.registerCapabilityListener("target_temperature", async (value) => {

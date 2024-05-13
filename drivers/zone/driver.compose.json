@@ -13,6 +13,10 @@
     "onoff",
     "measure_battery"
   ],
+  "capabilitiesOptions": {
+    "measure_temperature": { "step": 0.1 },
+    "target_temperature": { "step": 0.1 }
+  },
   "platforms": [
     "local"
   ],
