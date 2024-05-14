@@ -24,7 +24,7 @@ class iZoneApp extends Homey.App {
 
     // uncomment only for testing !!
     // this.homey.settings.unset('izone.ipaddress');
-    this.enableRespDebug = true;
+    this.enableRespDebug = false;
 
     this.ipaddress = this.homey.settings.get('izone.ipaddress');
 
@@ -95,7 +95,7 @@ class iZoneApp extends Homey.App {
 
       if (result.status === "ok") {
         this.state.ac.sysinfo = result.SystemV2
-        updateCapabilitiesDeviceId('ac.sysInfo');
+        this.updateCapabilitiesDeviceId('ac.sysInfo');
 
         for (let i = 0; i < result.SystemV2.NoOfZones; i++) {
           this.refreshZoneList.push(i);
@@ -107,11 +107,11 @@ class iZoneApp extends Homey.App {
     // now pop a zone num and do getZonesInfo...
     const zoneNum = this.refreshZoneList.pop();
     if (zoneNum != undefined) {
-      const resultZone = this.getZonesInfo(zoneNum);
+      const resultZone = await this.getZonesInfo(zoneNum);
       if (resultZone.status === "ok") {
-        let zoneIdx = "zone" + (i + 1);
+        let zoneIdx = "zone" + resultZone.ZonesV2.Index;
         this.state.ac.zones[zoneIdx] = resultZone.ZonesV2;
-        updateCapabilitiesDeviceId(zoneIdx);
+        this.updateCapabilitiesDeviceId(zoneIdx);
       }
       return;
     }
@@ -124,7 +124,7 @@ class iZoneApp extends Homey.App {
     const drivers = this.homey.drivers.getDrivers();
     for (const driver in drivers) {
       const devices = this.homey.drivers.getDriver(driver).getDevices();
-      for (const device in devices) {
+      for (const device of devices) {
         if (device.getData().id === id && device.updateCapabilities) {
           device.updateCapabilities();
           break;

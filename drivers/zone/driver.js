@@ -3,7 +3,7 @@
 const { Driver } = require('homey');
 const iZoneTypes = require('../../izonetypes');
 
-class iZoneACDriver extends Driver {
+class iZoneZoneDriver extends Driver {
 
   /**
    * onPairListDevices is called when a user is adding a device
@@ -16,8 +16,7 @@ class iZoneACDriver extends Driver {
       const zone = this.homey.app.state.ac.zones[keyid];
       // don't include ZoneType_Constant
       if (zone.ZoneType != iZoneTypes.ZoneType_Constant) {
-        const device = { name: zone.Name,  data: { id: keyid } };//, store: { index: zone.Index } };
-        this.log(`device ${JSON.stringify(device)}`);
+        const device = { name: zone.Name,  data: { id: keyid } };
         devices.push(device);
       }
     }
@@ -27,4 +26,4 @@ class iZoneACDriver extends Driver {
 
 }
 
-module.exports = iZoneACDriver;
+module.exports = iZoneZoneDriver;

@@ -12,7 +12,7 @@ class iZoneACDriver extends Driver {
   async onPairListDevices() {
     var devices = [];
     const acSysInfo = this.homey.app.state.ac.sysinfo;
-    const device = { data: { id: 'ac.sysInfo' } }; //, zonedata: zone } };
+    const device = { data: { id: 'ac.sysInfo' } };
     devices.push(device);
 
     return devices;
