@@ -36,14 +36,28 @@
       "name": {
         "en": "AC Controller"
       },
+      "energy": {
+        "approximation": {
+          "usageOn": 2000,
+          "usageOff": 1
+        }
+      },
       "class": "thermostat",
       "capabilities": [
         "target_temperature",
         "measure_temperature",
-        "thermostat_mode",
         "fan_mode",
+        "thermostat_mode",
         "onoff"
       ],
+      "capabilitiesOptions": {
+        "measure_temperature": {
+          "step": 0.1
+        },
+        "target_temperature": {
+          "step": 0.1
+        }
+      },
       "platforms": [
         "local"
       ],
@@ -68,19 +82,47 @@
           "template": "add_devices"
         }
       ],
-      "id": "accontroller"
+      "id": "accontroller",
+      "settings": [
+        {
+          "id": "firmware",
+          "type": "label",
+          "label": {
+            "en": "iZone Firmware"
+          },
+          "value": "",
+          "hint": {
+            "en": "The firmware string reported by iZone."
+          }
+        }
+      ]
     },
     {
       "name": {
         "en": "Zones"
+      },
+      "energy": {
+        "batteries": [
+          "AAA",
+          "AAA"
+        ]
       },
       "class": "thermostat",
       "capabilities": [
         "target_temperature",
         "measure_temperature",
         "zone_mode",
-        "onoff"
+        "onoff",
+        "measure_battery"
       ],
+      "capabilitiesOptions": {
+        "measure_temperature": {
+          "step": 0.1
+        },
+        "target_temperature": {
+          "step": 0.1
+        }
+      },
       "platforms": [
         "local"
       ],
