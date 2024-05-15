@@ -59,13 +59,6 @@ class iZoneApp extends Homey.App {
 
   isPaused = false; // This flag checks if the polling is paused
 
-  async resetPolling() {
-    this.pausePolling();
-    setTimeout(() => {
-      this.resumePolling();
-    }, 500);
-  }
-
   async startPolling() {
     setTimeout(() => {
       if (!this.isPaused) {
@@ -76,8 +69,12 @@ class iZoneApp extends Homey.App {
     }, 200); // Wait for 200ms before the next poll
   }
 
-  async pausePolling() {
+  async pausePolling(delay) {
     this.isPaused = true; // This pauses the polling
+    setTimeout(() => {
+      this.isPaused = false;
+      this.startPolling();
+    }, delay === undefined ? 0 : delay);
   }
 
   async resumePolling() {
@@ -90,8 +87,8 @@ class iZoneApp extends Homey.App {
   async polling() {
     if (this.refreshZoneList === undefined) {
       // starting or repeating, so do getAcSystemInfo 
-      this.refreshZoneList = [];
       let result = await this.getAcSystemInfo();
+      this.refreshZoneList = [];
 
       if (result.status === "ok") {
         this.state.ac.sysinfo = result.SystemV2

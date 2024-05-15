@@ -52,10 +52,10 @@
       ],
       "capabilitiesOptions": {
         "measure_temperature": {
-          "step": 0.1
+          "decimals": 1
         },
         "target_temperature": {
-          "step": 0.1
+          "decimals": 1
         }
       },
       "platforms": [
@@ -117,10 +117,10 @@
       ],
       "capabilitiesOptions": {
         "measure_temperature": {
-          "step": 0.1
+          "decimals": 1
         },
         "target_temperature": {
-          "step": 0.1
+          "decimals": 1
         }
       },
       "platforms": [

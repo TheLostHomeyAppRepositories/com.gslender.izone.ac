@@ -16,29 +16,26 @@ class ZoneDevice extends Device {
       if (zone == undefined) return;
 
       if (value) {
-        this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.ZoneMode_Auto });
+        await this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.ZoneMode_Auto });
       } else {
-        this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.ZoneMode_Close });
+        await this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.ZoneMode_Close });
       }
-      this.homey.app.state.ac.zones[this.getData().id] = undefined;
-      this.homey.app.resetPolling();
+      this.homey.app.pausePolling(500);
     });
 
     this.registerCapabilityListener("target_temperature", async (value) => {
       const zone = this.getThisZone();
       if (zone == undefined) return;
-      this.homey.app.sendSimpleiZoneCmd("ZoneSetpoint", { Index: zone.Index, Setpoint: value * 100 });
-      this.homey.app.state.ac.zones[this.getData().id] = undefined;
-      this.homey.app.resetPolling();
+      await this.homey.app.sendSimpleiZoneCmd("ZoneSetpoint", { Index: zone.Index, Setpoint: value * 100 });
+      this.homey.app.pausePolling(500);
     });
 
 
     this.registerCapabilityListener("zone_mode", async (value) => {
       const zone = this.getThisZone();
       if (zone == undefined) return;
-      this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.GetZoneModeValue(value) });
-      this.homey.app.state.ac.zones[this.getData().id] = undefined;
-      this.homey.app.resetPolling();
+      await this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.GetZoneModeValue(value) });
+      this.homey.app.pausePolling(500);
     });
   }
 
