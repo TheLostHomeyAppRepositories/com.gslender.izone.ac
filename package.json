@@ -4,11 +4,11 @@
   "main": "app.js",
   "scripts": {},
   "devDependencies": {
-    "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.5",
-    "homey": "^3.2.4"
+    "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.6",
+    "homey": "^3.3.0"
   },
   "dependencies": {
-    "undici": "^6.15.0"
+    "undici": "^6.18.1"
   },
   "author": "Grant Slender",
   "license": "GPL-3.0"
