@@ -25,6 +25,10 @@
     "name": "Grant Slender",
     "email": "gslender@gmail.com"
   },
+  "source": "https://github.com/gslender/com.gslender.izone.ac",
+  "bugs": {
+    "url": "https://github.com/gslender/com.gslender.izone.ac/issues"
+  },
   "api": {
     "sendMessageAndReturnAddress": {
       "method": "get",

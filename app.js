@@ -60,7 +60,7 @@ class iZoneApp extends Homey.App {
   isPaused = false; // This flag checks if the polling is paused
 
   async startPolling() {
-    setTimeout(() => {
+    this.homey.setTimeout(() => {
       if (!this.isPaused) {
         this.polling().then(() => {
           this.startPolling(); // Recursively start polling again
@@ -71,7 +71,7 @@ class iZoneApp extends Homey.App {
 
   async pausePolling(delay) {
     this.isPaused = true; // This pauses the polling
-    setTimeout(() => {
+    this.homey.setTimeout(() => {
       this.isPaused = false;
       this.startPolling();
     }, delay === undefined ? 0 : delay);
@@ -275,7 +275,7 @@ class iZoneApp extends Homey.App {
       });
 
       // Close the socket after 1 second if no response is received
-      setTimeout(() => {
+      this.homey.setTimeout(() => {
         if (!remoteAddress) {
           socket.close();
           reject(new Error('No response received'));
