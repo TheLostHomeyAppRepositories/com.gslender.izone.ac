@@ -1,6 +1,7 @@
 module.exports = {
     async sendMessageAndReturnAddress({ homey })
     {
-        return await homey.app.sendMessageAndReturnAddress();
+        const result = await homey.app.sendMessageAndReturnAddress();
+        return result;
     }
 };

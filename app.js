@@ -256,7 +256,7 @@ class iZoneApp extends Homey.App {
 
       // Set up event listeners and binding only once
       socket.once('message', (message, remote) => {
-        if (this.enableRespDebug) this.log(`CLIENT RECEIVED: ${remote.address} : ${remote.port} - ${message}`);
+        this.log(`CLIENT RECEIVED: ${remote.address} : ${remote.port} - ${message}`);
         remoteAddress = remote.address;
         resolve(remoteAddress);
       });

@@ -16,7 +16,7 @@
         <p class="homey-subtitle" data-i18n="settings.subtitle">
         </p>
     </header>
-    <form class="homey-form">
+    
         <fieldset class="homey-form-fieldset">
             <legend class="homey-form-legend">Settings</legend>
 
@@ -31,18 +31,17 @@
         </fieldset>
 
         <p><button id="save" class="right homey-button-primary-full">Save</button></p>
-    </form>
+        
     <script type="text/javascript">
 
-        // a method named 'onHomeyReady' must be present in your code
+        var ipaddressElement = document.getElementById('ipaddress');
+        var detectElement = document.getElementById('detect');
+        var saveElement = document.getElementById('save');
+
         function onHomeyReady(Homey) {
 
             // Tell Homey we're ready to be displayed
             Homey.ready();
-
-            var ipaddressElement = document.getElementById('ipaddress');
-            var detectElement = document.getElementById('detect');
-            var saveElement = document.getElementById('save');
 
             Homey.get('izone.ipaddress', function (err, ipaddress) {
                 if (err) return Homey.alert(err);
@@ -68,6 +67,7 @@
                 Homey.set('izone.ipaddress', ipaddressElement.value, function (err) {
                     if (err) return Homey.alert(err);
                 });
+                return Homey.alert("Settings Saved");
             });
         }
     </script>

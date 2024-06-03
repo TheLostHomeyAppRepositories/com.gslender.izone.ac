@@ -33,7 +33,7 @@
   "api": {
     "sendMessageAndReturnAddress": {
       "method": "get",
-      "path": "/sendMessageAndReturnAddress/"
+      "path": "/sendMessageAndReturnAddress"
     }
   },
   "drivers": [
