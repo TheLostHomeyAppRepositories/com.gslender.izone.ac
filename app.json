@@ -71,8 +71,7 @@
       ],
       "images": {
         "small": "/drivers/accontroller/assets/images/small.png",
-        "large": "/drivers/accontroller/assets/images/large.png",
-        "xlarge": "/drivers/accontroller/assets/images/xlarge.png"
+        "large": "/drivers/accontroller/assets/images/large.png"
       },
       "pair": [
         {
@@ -136,8 +135,7 @@
       ],
       "images": {
         "small": "/drivers/zone/assets/images/small.png",
-        "large": "/drivers/zone/assets/images/large.png",
-        "xlarge": "/drivers/zone/assets/images/xlarge.png"
+        "large": "/drivers/zone/assets/images/large.png"
       },
       "pair": [
         {
