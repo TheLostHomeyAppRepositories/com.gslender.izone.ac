@@ -54,8 +54,8 @@ const SysModeIdMap = {
   3: 'vent',
   4: 'dry',
   5: 'auto',
-  5: 'exhaust',
-  5: 'pumponly',
+  6: 'exhaust',
+  7: 'pumponly',
 };
 function GetSysModeValue(str) {
   for (const key in SysModeIdMap) {

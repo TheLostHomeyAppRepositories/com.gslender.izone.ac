@@ -41,8 +41,8 @@ class ACControllerDevice extends Device {
       }
     });
 
-    this.registerCapabilityListener("thermostat_mode", async (value) => {
-      await this.homey.app.sendSimpleiZoneCmd("SysMode", iZoneTypes.GetSysModeValue(value));      
+    this.registerCapabilityListener("sys_mode", async (value) => {
+      await this.homey.app.sendSimpleiZoneCmd("SysMode", iZoneTypes.GetSysModeValue(value));
       this.homey.app.pausePolling(500);
     });
 
@@ -62,13 +62,16 @@ class ACControllerDevice extends Device {
     if (this.homey.app.state?.ac?.sysinfo) {
       const acSysInfo = this.homey.app.state.ac.sysinfo;
 
-      this.setCapabilityValue('onoff', acSysInfo.SysOn === 1);
+      this.setCapabilityValue("onoff", acSysInfo.SysOn === 1);
 
-      this.setCapabilityValue('measure_temperature', acSysInfo.Temp / 100);
-      this.setCapabilityValue('target_temperature', acSysInfo.Setpoint / 100);
-
-      this.setCapabilityValue('thermostat_mode', iZoneTypes.SysModeIdMap[acSysInfo.SysMode]);
-      this.setCapabilityValue('fan_mode', iZoneTypes.SysFanIdMap[acSysInfo.SysFan]);
+      this.setCapabilityValue("measure_temperature", acSysInfo.Temp / 100);
+      this.setCapabilityValue("target_temperature", acSysInfo.Setpoint / 100);
+      if (acSysInfo.SysMode > 0 && acSysInfo.SysMode < 6) {
+        this.setCapabilityValue("sys_mode", iZoneTypes.SysModeIdMap[acSysInfo.SysMode]);
+      }
+      if (acSysInfo.SysFan > 0) {
+        this.setCapabilityValue("fan_mode", iZoneTypes.SysFanIdMap[acSysInfo.SysFan]);
+      }
 
     }
   }

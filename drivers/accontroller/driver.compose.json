@@ -13,7 +13,7 @@
     "target_temperature",
     "measure_temperature",
     "fan_mode",
-    "thermostat_mode",
+    "sys_mode",
     "onoff"
   ],
   "capabilitiesOptions": {
