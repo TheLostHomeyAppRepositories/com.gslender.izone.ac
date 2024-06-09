@@ -1,0 +1,42 @@
+{
+    "type": "enum",
+    "values": [
+        {
+            "id": "auto",
+            "title": {
+                "en": "Automatic"
+            }
+        },
+        {
+            "id": "cool",
+            "title": {
+                "en": "Cool"
+            }
+        },
+        {
+            "id": "heat",
+            "title": {
+                "en": "Heat"
+            }
+        },
+        {
+            "id": "vent",
+            "title": {
+                "en": "Vent"
+            }
+        },
+        {
+            "id": "dry",
+            "title": {
+                "en": "Dry"
+            }
+        }
+    ],
+    "title": {
+        "en": "System Mode"
+    },
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "uiQuickAction": true
+}
