@@ -11,6 +11,15 @@ class ACControllerDevice extends Device {
   async onInit() {
     this.log('ACControllerDevice has been initialized');
 
+    /// for old code that still uses the wrong thermostat_mode capability
+    /// for old code that still uses the wrong thermostat_mode capability
+    if (this.hasCapability('thermostat_mode')) {
+     this.removeCapability('thermostat_mode');
+     this.addCapability('sys_mode');
+    }
+    /// for old code that still uses the wrong thermostat_mode capability
+    /// for old code that still uses the wrong thermostat_mode capability
+
     this.registerCapabilityListener("onoff", async (value) => {
       await this.homey.app.sendSimpleiZoneCmd("SysOn", value ? 1 : 0);
       this.homey.app.pausePolling(500);

@@ -10,5 +10,8 @@
   },
   "1.0.3": {
     "en": "Fixed bug in missing thermo mode Vent for iZone"
+  },
+  "1.0.4": {
+    "en": "Bug fix capability missing"
   }
 }
