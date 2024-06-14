@@ -24,7 +24,7 @@ class iZoneApp extends Homey.App {
 
     // uncomment only for testing !!
     // this.homey.settings.unset('izone.ipaddress');
-    this.enableRespDebug = false;
+    this.enableRespDebug = true;
 
     this.ipaddress = this.homey.settings.get('izone.ipaddress');
 
@@ -40,7 +40,6 @@ class iZoneApp extends Homey.App {
         });
     }
 
-
     this.state = {};
     this.state.ac = {};
     this.state.ac.zones = {};
@@ -50,38 +49,33 @@ class iZoneApp extends Homey.App {
     if (resultFmw.status === "ok") {
       this.state.firmware = resultFmw.Fmw;
     }
-    this.startPolling();
+
+    this.isRunning = true;
+    this.homey.setTimeout(async () => {
+      while (this.isRunning) {
+        if (!this.isPaused) {
+          await this.polling();
+        }
+        await this.sleep(1000);
+      }
+    }, 1000); // start 1 second after init
+  }
+
+  async sleep(ms) {
+    return new Promise(resolve => this.homey.setTimeout(resolve, ms));
   }
 
   async onUninit() {
-    this.pausePolling();
-  }
-
-  isPaused = false; // This flag checks if the polling is paused
-
-  async startPolling() {
-    this.homey.setTimeout(() => {
-      if (!this.isPaused) {
-        this.polling().then(() => {
-          this.startPolling(); // Recursively start polling again
-        });
-      }
-    }, 200); // Wait for 200ms before the next poll
+    this.isRunning = false;
   }
 
   async pausePolling(delay) {
-    this.isPaused = true; // This pauses the polling
-    this.homey.setTimeout(() => {
-      this.isPaused = false;
-      this.startPolling();
-    }, delay === undefined ? 0 : delay);
+    this.isPaused = true;
+    if (delay) this.homey.setTimeout(async () => { this.resumePolling(); }, delay);
   }
 
   async resumePolling() {
-    if (this.isPaused) {
-      this.isPaused = false;
-      this.startPolling(); // Resume polling
-    }
+    this.isPaused = false;
   }
 
   async polling() {
