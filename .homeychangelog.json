@@ -16,5 +16,8 @@
   },
   "1.0.5": {
     "en": "Improved polling fixes"
+  },
+  "1.0.6": {
+    "en": "Added settings based polling interval"
   }
 }

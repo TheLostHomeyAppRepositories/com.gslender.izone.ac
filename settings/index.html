@@ -16,27 +16,36 @@
         <p class="homey-subtitle" data-i18n="settings.subtitle">
         </p>
     </header>
-    
-        <fieldset class="homey-form-fieldset">
-            <legend class="homey-form-legend">Settings</legend>
 
-            <div class="homey-form-group">
-                <button id="detect" class="homey-button-secondary-shadow">Network Detect...</button>
-            </div>
-            <div class="homey-form-group">
-                <label class="homey-form-label" for="ipaddress">IP Address</label>
-                <input class="homey-form-input" id="ipaddress" type="text" value="" />
-            </div>
+    <fieldset class="homey-form-fieldset">
+        <legend class="homey-form-legend">Settings</legend>
 
-        </fieldset>
+        <div class="homey-form-group">
+            <button id="detect" class="homey-button-secondary-shadow">Network Detect...</button>
+        </div>
+        <div class="homey-form-group">
+            <label class="homey-form-label" for="ipaddress">IP Address</label>
+            <input class="homey-form-input" id="ipaddress" type="text" value="" />
+        </div>
+        <label class="homey-form-label" for="select-polling">Polling Interval</label>
+        <select class="homey-form-select" name="select-polling" id="select-polling">
+            <option value="15000">15 Seconds</option>
+            <option value="30000">30 Seconds</option>
+            <option value="60000">1 Minute</option>
+            <option value="120000">2 Minutes</option>
+            <option value="300000">5 Minutes</option>
+        </select>
 
-        <p><button id="save" class="right homey-button-primary-full">Save</button></p>
-        
+    </fieldset>
+
+    <p><button id="save" class="right homey-button-primary-full">Save</button></p>
+
     <script type="text/javascript">
 
         var ipaddressElement = document.getElementById('ipaddress');
         var detectElement = document.getElementById('detect');
         var saveElement = document.getElementById('save');
+        var pollingElement = document.getElementById('select-polling');
 
         function onHomeyReady(Homey) {
 
@@ -46,6 +55,18 @@
             Homey.get('izone.ipaddress', function (err, ipaddress) {
                 if (err) return Homey.alert(err);
                 ipaddressElement.value = ipaddress;
+            });
+
+            Homey.get('izone.polling', function (err, polling) {
+                if (err) return Homey.alert(err);
+                if (polling === null || polling === undefined || polling === '') {
+                    polling = '15000';
+                }
+                pollingElement.value = polling;
+            });
+
+            Homey.on("settingsChanged", function (state) {
+                document.getElementById('save').classList.remove("is-loading");
             });
 
             detectElement.addEventListener('click', function (e) {
@@ -63,11 +84,14 @@
                     });
             });
 
-            saveElement.addEventListener('click', function (e) {
-                Homey.set('izone.ipaddress', ipaddressElement.value, function (err) {
+            saveElement.addEventListener('click', async function (e) {
+                document.getElementById('save').classList.add("is-loading");
+                await Homey.set('izone.ipaddress', ipaddressElement.value, function (err) {
                     if (err) return Homey.alert(err);
                 });
-                return Homey.alert("Settings Saved");
+                await Homey.set('izone.polling', pollingElement.value, function (err) {
+                    if (err) return Homey.alert(err);
+                });
             });
         }
     </script>

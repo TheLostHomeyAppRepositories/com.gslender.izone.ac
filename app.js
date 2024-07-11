@@ -26,17 +26,19 @@ class iZoneApp extends Homey.App {
     // this.homey.settings.unset('izone.ipaddress');
     this.enableRespDebug = true;
 
-    this.ipaddress = this.homey.settings.get('izone.ipaddress');
+    this.isPaused = false; // This flag checks if the polling is paused
+
+    this.updateSettings();
 
     if (!isValidIPAddress(this.ipaddress)) {
       this.homey.app.sendMessageAndReturnAddress()
         .then(address => {
-          console.log('Remote address:', address);
+          this.log('Remote address:', address);
           this.homey.settings.set('izone.ipaddress', address);
           this.ipaddress = address;
         })
         .catch(error => {
-          console.error('Error occurred:', error);
+          this.error('Error occurred:', error);
         });
     }
 
@@ -56,9 +58,41 @@ class iZoneApp extends Homey.App {
         if (!this.isPaused) {
           await this.polling();
         }
-        await this.sleep(1000);
+        await this.sleep(this.pollingInterval/15);
       }
     }, 1000); // start 1 second after init
+
+    this.homey.settings.on('set', this.onSettingsChanged.bind(this));
+  }
+  
+  async onSettingsChanged(key)  {
+    if (key === 'izone.polling' || key === 'izone.ipaddress') {
+      this.pausePolling();
+      this.updateSettings();
+      this.homey.setTimeout(async () => {        
+        this.resumePolling();
+        await this.homey.api.realtime("settingsChanged", "otherSuccess");
+      }, 5000);
+    }
+  }
+
+  async updateSettings() {
+    this.ipaddress = this.homey.settings.get('izone.ipaddress');
+
+    const MIN_POLLING_INTERVAL = 15000;
+    const MAX_POLLING_INTERVAL = 300000;    
+    
+    let pollingInterval = parseInt(this.homey.settings.get('izone.polling'), 10);    
+    
+    if (typeof pollingInterval !== 'number' || isNaN(pollingInterval)) {
+      pollingInterval = MIN_POLLING_INTERVAL; // Default value if not a number or undefined
+    } else {
+      pollingInterval = Math.max(MIN_POLLING_INTERVAL, Math.min(MAX_POLLING_INTERVAL, pollingInterval));
+    }
+    
+    this.pollingInterval = pollingInterval;
+    this.log('Remote address:', this.ipaddress);
+    this.log('Polling interval:', this.pollingInterval);
   }
 
   async sleep(ms) {
