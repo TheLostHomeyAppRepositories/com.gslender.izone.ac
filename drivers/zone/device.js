@@ -50,7 +50,7 @@ class ZoneDevice extends Device {
     this.setCapabilityValue('onoff', zone.Mode === iZoneTypes.ZoneMode_Auto || zone.Mode === iZoneTypes.ZoneMode_Open);
     this.setCapabilityValue('measure_temperature', zone.Temp / 100);
     this.setCapabilityValue('target_temperature', zone.Setpoint / 100);
-    this.setCapabilityValue('zone_mode', iZoneTypes.ZoneModeIdMap[zone.Mode]);
+    if (zone.Mode > 0 && zone.Mode < 4) this.setCapabilityValue('zone_mode', iZoneTypes.ZoneModeIdMap[zone.Mode]);
     if (zone.BattVolt == iZoneTypes.BatteryLevel_Full) {
       this.setCapabilityValue('measure_battery', 100);
     } else if (zone.BattVolt == iZoneTypes.BatteryLevel_Half) {
