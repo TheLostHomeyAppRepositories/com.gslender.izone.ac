@@ -20,14 +20,14 @@ class ZoneDevice extends Device {
       } else {
         await this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.ZoneMode_Close });
       }
-      this.homey.app.pausePolling(500);
+      this.homey.app.refreshPolling(500); 
     });
 
     this.registerCapabilityListener("target_temperature", async (value) => {
       const zone = this.getThisZone();
       if (zone == undefined) return;
       await this.homey.app.sendSimpleiZoneCmd("ZoneSetpoint", { Index: zone.Index, Setpoint: value * 100 });
-      this.homey.app.pausePolling(500);
+      this.homey.app.refreshPolling(500);
     });
 
 
@@ -35,7 +35,7 @@ class ZoneDevice extends Device {
       const zone = this.getThisZone();
       if (zone == undefined) return;
       await this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.GetZoneModeValue(value) });
-      this.homey.app.pausePolling(500);
+      this.homey.app.refreshPolling(500);
     });
   }
 

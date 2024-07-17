@@ -22,5 +22,8 @@
   },
   "1.0.7": {
     "en": "fix zone mode range bug"
+  },
+  "1.0.8": {
+    "en": "Fixed polling bugs"
   }
 }

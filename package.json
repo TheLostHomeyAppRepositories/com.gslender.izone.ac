@@ -7,9 +7,9 @@
     "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.6",
     "homey": "^3.5.0"
   },
-  "dependencies": {
-    "undici": "^6.19.2"
-  },
   "author": "Grant Slender",
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "dependencies": {
+    "axios": "^1.7.2"
+  }
 }
