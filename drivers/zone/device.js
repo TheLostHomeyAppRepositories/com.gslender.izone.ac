@@ -37,6 +37,8 @@ class ZoneDevice extends Device {
       await this.homey.app.sendSimpleiZoneCmd("ZoneMode", { Index: zone.Index, Mode: iZoneTypes.GetZoneModeValue(value) });
       this.homey.app.refreshPolling(500);
     });
+    
+    this.setUnavailable();
   }
 
   getThisZone() {

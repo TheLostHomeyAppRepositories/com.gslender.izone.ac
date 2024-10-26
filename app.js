@@ -48,12 +48,12 @@ class iZoneApp extends Homey.App {
     let resultFmw = await this.getFirmwareList();
     if (resultFmw.status === "ok") {
       this.state.firmware = resultFmw.Fmw;
-    }
 
-    this.isRunning = true;
-    this.refreshPolling(2000); // start 2 second after init
+      this.isRunning = true;
+      this.refreshPolling(2000); // start 2 second after init
 
-    this.homey.settings.on('set', this.onSettingsChanged.bind(this));
+      this.homey.settings.on('set', this.onSettingsChanged.bind(this));
+    } 
   }
 
   refreshPolling(delay) {
@@ -125,7 +125,8 @@ class iZoneApp extends Homey.App {
       const devices = this.homey.drivers.getDriver(driver).getDevices();
       for (const device of devices) {
         if (device.getData().id === id && device.updateCapabilities) {
-          device.updateCapabilities();
+          await device.setAvailable();
+          await device.updateCapabilities();
           break;
         }
       }

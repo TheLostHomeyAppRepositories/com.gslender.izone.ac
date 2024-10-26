@@ -65,6 +65,8 @@ class ACControllerDevice extends Device {
         firmware: this.homey.app.state.firmware,
       });
     }
+
+    this.setUnavailable();
   }
 
   async updateCapabilities() {

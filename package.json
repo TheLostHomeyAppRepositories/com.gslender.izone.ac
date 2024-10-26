@@ -4,8 +4,8 @@
   "main": "app.js",
   "scripts": {},
   "devDependencies": {
-    "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.7",
-    "homey": "^3.7.1"
+    "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.9",
+    "homey": "^3.7.11"
   },
   "author": "Grant Slender",
   "license": "GPL-3.0",
