@@ -3,6 +3,16 @@
 const Homey = require('homey');
 const dgram = require('dgram');
 const axios = require('axios');
+const http = require('http');
+
+// Create custom HTTP and HTTPS agents with keepAlive set to false
+const httpAgent = new http.Agent({ keepAlive: false });
+
+// Configure Axios instance with these agents
+const axiosInstance = axios.create({
+  httpAgent,
+  timeout: 5000,  // Optional timeout for requests
+});
 
 function isValidIPAddress(ipaddress) {
   // Check if ipaddress is undefined or null
@@ -50,19 +60,19 @@ class iZoneApp extends Homey.App {
       this.state.firmware = resultFmw.Fmw;
 
       this.isRunning = true;
-      this.refreshPolling(2000); // start 2 second after init
+      await this.refreshPolling(2000); // start 2 second after init
 
       this.homey.settings.on('set', this.onSettingsChanged.bind(this));
-    } 
+    }
   }
 
-  refreshPolling(delay) {
+  async refreshPolling(delay) {
     delay = delay || 0;
     this.homey.clearInterval(this.pollingID);
     this.homey.setTimeout(async () => {
-      this.refresh();
+      await this.refresh();
       this.pollingID = this.homey.setInterval(async () => {
-        if (this.isRunning) this.refresh();
+        if (this.isRunning) await this.refresh();
       }, this.pollingInterval);
     }, delay);
   }
@@ -71,7 +81,7 @@ class iZoneApp extends Homey.App {
     if (key === 'izone.polling' || key === 'izone.ipaddress') {
       this.updateSettings();
       this.homey.setTimeout(async () => {
-        this.refreshPolling();
+        await this.refreshPolling();
         await this.homey.api.realtime("settingsChanged", "otherSuccess");
       }, 1000);
     }
@@ -102,6 +112,7 @@ class iZoneApp extends Homey.App {
 
   async refresh() {
     // starting or repeating, so do getAcSystemInfo 
+    let failed = false;
     let result = await this.getAcSystemInfo();
     if (result.status === "ok") {
       this.state.ac.sysinfo = result.SystemV2
@@ -113,9 +124,14 @@ class iZoneApp extends Homey.App {
           let zoneIdx = "zone" + resultZone.ZonesV2.Index;
           this.state.ac.zones[zoneIdx] = resultZone.ZonesV2;
           this.updateCapabilitiesDeviceId(zoneIdx);
+        } else {
+          failed = true;
         }
       }
+    } else {
+      failed = true;
     }
+    if (failed) await this.setDevicesUnavailable();
   }
 
   async updateCapabilitiesDeviceId(id) {
@@ -133,6 +149,17 @@ class iZoneApp extends Homey.App {
     }
   }
 
+  async setDevicesUnavailable() {
+    // update the drivers and devices
+    const drivers = this.homey.drivers.getDrivers();
+    for (const driver in drivers) {
+      const devices = this.homey.drivers.getDriver(driver).getDevices();
+      for (const device of devices) {
+        await device.setAvailable();
+      }
+    }
+  }
+
   async getAcSystemInfo() {
     if (!isValidIPAddress(this.ipaddress)) return {};
     const uri = `http://${this.ipaddress}:80/iZoneRequestV2`;
@@ -143,7 +170,7 @@ class iZoneApp extends Homey.App {
 
     try {
       respData.status = "failed";
-      const response = await axios.post(uri, JSON.stringify(mapBody), {
+      const response = await axiosInstance.post(uri, JSON.stringify(mapBody), {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -167,7 +194,7 @@ class iZoneApp extends Homey.App {
 
     try {
       respData.status = "failed";
-      const response = await axios.post(uri, JSON.stringify(mapBody), {
+      const response = await axiosInstance.post(uri, JSON.stringify(mapBody), {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -191,7 +218,7 @@ class iZoneApp extends Homey.App {
 
     try {
       respData.status = "failed";
-      const response = await axios.post(uri, JSON.stringify(mapBody), {
+      const response = await axiosInstance.post(uri, JSON.stringify(mapBody), {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -217,7 +244,7 @@ class iZoneApp extends Homey.App {
     if (this.enableRespDebug) this.log(`sendSimpleUriCmdWithBody() uri: ${uri} cmdbody: ${cmdbody}`);
 
     try {
-      const response = await axios.post(uri, cmdbody, {
+      const response = await axiosInstance.post(uri, cmdbody, {
         responseType: 'text',
         headers: {
           'Content-Type': 'application/json'
