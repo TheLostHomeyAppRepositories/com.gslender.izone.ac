@@ -34,5 +34,8 @@
   },
   "1.0.11": {
     "en": "Improved HTTP polling and setUnavailable "
+  },
+  "1.0.12": {
+    "en": "migrated to raw net for http"
   }
 }
