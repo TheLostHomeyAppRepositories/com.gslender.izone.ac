@@ -358,8 +358,10 @@ class iZoneApp extends Homey.App {
   }
 
   async resetBridge() {
-    const body = JSON.stringify({ "ReSetMe": 12345 });
-    return this.sendRawRequest('/iZoneCommandV2', body);
+    if (!isValidIPAddress(this.ipaddress)) return {};
+    return this.sendSimpleUriCmdWithBody(
+      `http://${this.ipaddress}:80/iZoneCommandV2`,
+      JSON.stringify({ "ReSetMe": 12345 }));
   }
 
   async sendSimpleiZoneCmd(cmd, value) {

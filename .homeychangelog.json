@@ -40,5 +40,8 @@
   },
   "1.0.13": {
     "en": "revised http agent settings"
+  },
+  "1.0.14": {
+    "en": "Fixed missing sendRawRequest bug/crash"
   }
 }
