@@ -14,11 +14,19 @@
     "measure_temperature",
     "fan_mode",
     "sys_mode",
-    "onoff"
+    "onoff",
+    "onoff.bridge"
   ],
   "capabilitiesOptions": {
     "measure_temperature": { "decimals": 1},
-    "target_temperature": {  "decimals": 1 }
+    "target_temperature": {  "decimals": 1 },
+    "onoff.bridge": {
+      "uiQuickAction": false,
+      "uiComponent": "button",
+      "title": {
+        "en": "Bridge Reset"
+      }
+    }
   },
   "platforms": [
     "local"
