@@ -2,9 +2,17 @@
 
 const Homey = require('homey');
 const dgram = require('dgram');
+const axios = require('axios');
 const http = require('http');
 
-const agent = new http.Agent({ keepAlive: true, maxSockets: 1, timeout: 5000  });
+// Create custom HTTP and HTTPS agents with keepAlive set to false
+const httpAgent = new http.Agent({ keepAlive: false });
+
+// Configure Axios instance with these agents
+const axiosInstance = axios.create({
+  httpAgent,
+  timeout: 5000,  // Optional timeout for requests
+});
 
 function isValidIPAddress(ipaddress) {
   // Check if ipaddress is undefined or null
@@ -48,7 +56,6 @@ class iZoneApp extends Homey.App {
 
     // getFirmwareList
     let resultFmw = await this.getFirmwareList();
-    this.log('result = ', resultFmw);
     if (resultFmw.status === "ok") {
       this.state.firmware = resultFmw.Fmw;
 
@@ -56,19 +63,6 @@ class iZoneApp extends Homey.App {
       await this.refreshPolling(2000); // start 2 second after init
 
       this.homey.settings.on('set', this.onSettingsChanged.bind(this));
-      
-      // Check every 60,000 milliseconds (i.e., 1 minute)
-      setInterval(() => {
-        const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        
-        // If it's exactly 2:00 AM...
-        if (hours === 2 && minutes === 0) {
-          this.log(`>>>>>>RESET BRIDGE `);
-          this.resetBridge();
-        }
-      }, 60_000);
     }
   }
 
@@ -167,201 +161,75 @@ class iZoneApp extends Homey.App {
   }
 
   async getAcSystemInfo() {
-    const host = this.ipaddress;
-    const path = '/iZoneRequestV2';
-    const port = 80;
+    if (!isValidIPAddress(this.ipaddress)) return {};
+    const uri = `http://${this.ipaddress}:80/iZoneRequestV2`;
+    if (this.enableRespDebug) this.log(`getAcSystemInfo() ${uri}`);
     let respData = {};
-    const mapBody = JSON.stringify({ "iZoneV2Request": { "Type": 1, "No": 0, "No1": 0 } });
+
+    const mapBody = { "iZoneV2Request": { "Type": 1, "No": 0, "No1": 0 } };
 
     try {
       respData.status = "failed";
-
-      const options = {
-        hostname: host,
-        port: port,
-        path: path,
-        method: 'POST',
+      const response = await axiosInstance.post(uri, JSON.stringify(mapBody), {
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(mapBody),
-        },
-        agent: agent, // Use the HTTP agent with keep-alive
-      };
-
-      if (this.enableRespDebug) this.log(`getAcSystemInfo() POST ${host}${path}`);
-
-      respData = await new Promise((resolve, reject) => {
-        const req = http.request(options, (res) => {
-          let data = '';
-          res.on('data', (chunk) => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            if (res.statusCode === 200) {
-              try {
-                const jsonData = JSON.parse(data);
-                resolve({ ...jsonData, status: jsonData.SystemV2 ? 'ok' : 'failed' });
-              } catch (err) {
-                reject(`Failed to parse response: ${err}`);
-              }
-            } else {
-              if (this.enableRespDebug) {
-                this.log(`getAcSystemInfo() ERROR: HTTP ${res.statusCode}`);
-              }
-              resolve({ status: `failed: HTTP ${res.statusCode}` });
-            }
-          });
-        });
-
-        req.on('error', (err) => {
-          if (this.enableRespDebug) this.log(`getAcSystemInfo() ERROR: ${err.message}`);
-          resolve({ status: `failed: ${err.message}` });
-        });
-
-        req.write(mapBody);
-        req.end(); // Close the connection immediately after sending the request
+          'Content-Type': 'application/json'
+        }
       });
+      respData = response.data;
+      if (respData.hasOwnProperty("SystemV2")) respData.status = "ok";
     } catch (e) {
       if (this.enableRespDebug) this.log(`getAcSystemInfo() ERROR: ${e}`);
       respData.status = "failed: " + e;
     }
-
     return respData;
   }
 
   async getZonesInfo(zone) {
     if (!isValidIPAddress(this.ipaddress)) return {};
-    const host = this.ipaddress;
-    const path = '/iZoneRequestV2';
-    const port = 80;
+    const uri = `http://${this.ipaddress}:80/iZoneRequestV2`;
+    if (this.enableRespDebug) this.log(`getZonesInfo() ${uri} ${zone}`);
     let respData = {};
-    const mapBody = JSON.stringify({ "iZoneV2Request": { "Type": 2, "No": zone, "No1": 0 } });
+
+    const mapBody = { "iZoneV2Request": { "Type": 2, "No": zone, "No1": 0 } };
 
     try {
       respData.status = "failed";
-
-      const options = {
-        hostname: host,
-        port: port,
-        path: path,
-        method: 'POST',
+      const response = await axiosInstance.post(uri, JSON.stringify(mapBody), {
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(mapBody),
-        },
-        agent: agent, // Use the HTTP agent with keep-alive
-      };
-
-      if (this.enableRespDebug) this.log(`getZonesInfo() POST ${host}${path} Zone: ${zone}`);
-
-      respData = await new Promise((resolve, reject) => {
-        const req = http.request(options, (res) => {
-          let data = '';
-          res.on('data', (chunk) => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            if (res.statusCode === 200) {
-              try {
-                const jsonData = JSON.parse(data);
-                resolve({ ...jsonData, status: jsonData.ZonesV2 ? 'ok' : 'failed' });
-              } catch (err) {
-                reject(`Failed to parse response: ${err}`);
-              }
-            } else {
-              if (this.enableRespDebug) {
-                this.log(`getZonesInfo() ERROR: HTTP ${res.statusCode}`);
-              }
-              resolve({ status: `failed: HTTP ${res.statusCode}` });
-            }
-          });
-        });
-
-        req.on('error', (err) => {
-          if (this.enableRespDebug) this.log(`getZonesInfo() ERROR: ${err.message}`);
-          resolve({ status: `failed: ${err.message}` });
-        });
-
-        req.write(mapBody);
-        req.end(); // Ensure the connection is closed immediately after sending the request
+          'Content-Type': 'application/json'
+        }
       });
+      respData = response.data;
+      if (respData.hasOwnProperty("ZonesV2")) respData.status = "ok";
     } catch (e) {
       if (this.enableRespDebug) this.log(`getZonesInfo() ERROR: ${e}`);
       respData.status = "failed: " + e;
     }
-
     return respData;
   }
 
   async getFirmwareList() {
     if (!isValidIPAddress(this.ipaddress)) return {};
-    const host = this.ipaddress;
-    const path = '/iZoneRequestV2';
-    const port = 80;
+    const uri = `http://${this.ipaddress}:80/iZoneRequestV2`;
+    if (this.enableRespDebug) this.log(`getFirmwareList() ${uri}`);
     let respData = {};
-    const mapBody = JSON.stringify({ "iZoneV2Request": { "Type": 6, "No": 0, "No1": 0 } });
+
+    const mapBody = { "iZoneV2Request": { "Type": 6, "No": 0, "No1": 0 } };
 
     try {
       respData.status = "failed";
-
-      const options = {
-        hostname: host,
-        port: port,
-        path: path,
-        method: 'POST',
+      const response = await axiosInstance.post(uri, JSON.stringify(mapBody), {
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(mapBody),
-        },
-        agent: agent, // Use the HTTP agent with keep-alive
-      };
-
-      if (this.enableRespDebug) this.log(`getFirmwareList() POST ${host}${path}`);
-
-      respData = await new Promise((resolve, reject) => {
-        const req = http.request(options, (res) => {
-          let data = '';
-          res.on('data', (chunk) => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            if (res.statusCode === 200) {
-              try {
-                const jsonData = JSON.parse(data);
-                resolve({ ...jsonData, status: jsonData.Fmw ? 'ok' : 'failed' });
-              } catch (err) {
-                reject(`Failed to parse response: ${err}`);
-              }
-            } else {
-              if (this.enableRespDebug) {
-                this.log(`getFirmwareList() ERROR: HTTP ${res.statusCode}`);
-              }
-              resolve({ status: `failed: HTTP ${res.statusCode}` });
-            }
-          });
-        });
-
-        req.on('error', (err) => {
-          if (this.enableRespDebug) this.log(`getFirmwareList() ERROR: ${err.message}`);
-          resolve({ status: `failed: ${err.message}` });
-        });
-
-        req.write(mapBody);
-        req.end(); // Ensure the connection is closed immediately after sending the request
+          'Content-Type': 'application/json'
+        }
       });
+      respData = response.data;
+      if (respData.hasOwnProperty("Fmw")) respData.status = "ok";
     } catch (e) {
       if (this.enableRespDebug) this.log(`getFirmwareList() ERROR: ${e}`);
       respData.status = "failed: " + e;
     }
-
     return respData;
-  }
-
-  async resetBridge() {
-    if (!isValidIPAddress(this.ipaddress)) return {};
-    return this.sendSimpleUriCmdWithBody(
-      `http://${this.ipaddress}:80/iZoneCommandV2`,
-      JSON.stringify({ "ReSetMe": 12345 }));
   }
 
   async sendSimpleiZoneCmd(cmd, value) {
@@ -372,50 +240,17 @@ class iZoneApp extends Homey.App {
   }
 
   async sendSimpleUriCmdWithBody(uri, cmdbody) {
+
     if (this.enableRespDebug) this.log(`sendSimpleUriCmdWithBody() uri: ${uri} cmdbody: ${cmdbody}`);
 
     try {
-      const { hostname, port, path } = new URL(uri);
-      const options = {
-        hostname,
-        port: port || 80, // Default to port 80 if not explicitly provided
-        path,
-        method: 'POST',
+      const response = await axiosInstance.post(uri, cmdbody, {
+        responseType: 'text',
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(cmdbody),
-        },
-        agent: agent, // Use the HTTP agent with keep-alive
-      };
-
-      const result = await new Promise((resolve, reject) => {
-        const req = http.request(options, (res) => {
-          let data = '';
-          res.on('data', (chunk) => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            if (res.statusCode === 200) {
-              resolve({ status: data }); // Response type is 'text'
-            } else {
-              if (this.enableRespDebug) {
-                this.log(`sendSimpleUriCmdWithBody() ERROR: HTTP ${res.statusCode}`);
-              }
-              resolve({ status: `failed: HTTP ${res.statusCode}` });
-            }
-          });
-        });
-
-        req.on('error', (err) => {
-          if (this.enableRespDebug) this.log(`sendSimpleUriCmdWithBody() ERROR: ${err.message}`);
-          resolve({ status: `failed: ${err.message}` });
-        });
-
-        req.write(cmdbody);
-        req.end(); // Ensure the connection is closed immediately
+          'Content-Type': 'application/json'
+        }
       });
-
-      return result;
+      return { status: response.data };
     } catch (e) {
       if (this.enableRespDebug) this.log(`sendSimpleUriCmdWithBody() ERROR: ${e}`);
       return { status: `failed: ${e}` };

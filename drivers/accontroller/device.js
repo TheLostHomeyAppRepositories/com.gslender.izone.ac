@@ -25,12 +25,6 @@ class ACControllerDevice extends Device {
       this.homey.app.refreshPolling(500);
     });
 
-    this.registerCapabilityListener("onoff.bridge", async (value) => {
-      this.log(`>>>>>>RESET BRIDGE `);
-      await this.homey.app.resetBridge();
-      this.homey.app.refreshPolling(5000);
-    });
-
     this.registerCapabilityListener("target_temperature", async (value) => {
       if (this.homey.app.state?.ac?.zones) {
         // find all zones above this target and adjust them all down (or up)

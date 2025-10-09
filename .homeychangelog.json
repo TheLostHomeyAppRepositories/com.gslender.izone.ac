@@ -43,5 +43,8 @@
   },
   "1.0.14": {
     "en": "Fixed missing sendRawRequest bug/crash"
+  },
+  "1.0.15": {
+    "en": "Revert code to v1.0.11 - bug in http request"
   }
 }
