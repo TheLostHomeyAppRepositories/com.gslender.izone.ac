@@ -24,6 +24,18 @@
             "title": {
                 "en": "Automatic"
             }
+        },
+        {
+            "id": "top",
+            "title": {
+                "en": "Top"
+            }
+        },
+        {
+            "id": "non_gas_heat",
+            "title": {
+                "en": "Non Gas Heat"
+            }
         }
     ],
     "title": {

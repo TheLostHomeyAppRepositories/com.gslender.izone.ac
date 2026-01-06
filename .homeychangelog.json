@@ -46,5 +46,8 @@
   },
   "1.0.15": {
     "en": "Revert code to v1.0.11 - bug in http request"
+  },
+  "1.1.0": {
+    "en": "fixed missing fan modes and added depends "
   }
 }
